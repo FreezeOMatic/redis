@@ -1,22 +1,21 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/go-redis/redis"
-	"time"
 )
 
 /*
 $ docker pull redis
-$ docker run —name redis-test-instance -p 6379:6379 -d redis
+$ docker run —name redis-testkey-instance -p 6379:6379 -d redis
 */
 
 func main() {
 
-	var ct = context.Background()
-	ctx, _ := context.WithTimeout(ct, time.Second*5)
+	// var ct = context.Background()
+	// _ := context.WithTimeout(ct, time.Second*5)
 	var host, port string
 
 	host = "127.0.0.1"
@@ -25,7 +24,7 @@ func main() {
 
 	server := host + ":" + port
 
-	fmt.Println("Test connect to redis on: " + server)
+	fmt.Println("testkey connect to redis on: " + server)
 
 	// if wanna use cluster
 	/*
@@ -39,33 +38,33 @@ func main() {
 		DB:       0,  // use default DB
 	})
 
-	err := rdb.Set(ctx, "test", "testtest", 0).Err()
+	err := rdb.Set("testkey", "testvalue", 0).Err()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	val, err := rdb.Get(ctx, "test").Result()
+	val, err := rdb.Get("testkey").Result()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("key", val)
+	fmt.Println("Get key, testkey, value: ", val)
 
-	val2, err := rdb.Get(ctx, "key2").Result()
+	val2, err := rdb.Get("noexistantkey").Result()
 	if err == redis.Nil {
-		fmt.Println("key2 does not exist")
+		fmt.Println("noexistantkey does not exist")
 	} else if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("key2", val2)
+		fmt.Println("noexistantkey", val2)
 	}
 	// Output: key value
-	// key2 does not exist
+	// noexistantkey does not exist
 
 	payload := map[string]interface{}{
-		"name": "serega",
+		"name": "gena",
 		"age":  "300",
 	}
 
@@ -75,14 +74,14 @@ func main() {
 		return
 	}
 
-	err = rdb.HSet(ctx, "htest", "me", slb).Err()
+	err = rdb.HSet("htestkey", "me", slb).Err()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	payload2 := map[string]interface{}{
-		"name": "nata",
+		"name": "sasha",
 		"age":  "100",
 	}
 
@@ -92,29 +91,34 @@ func main() {
 		return
 	}
 
-	err = rdb.HSet(ctx, "htest", "me2", slb2).Err()
+	err = rdb.HSet("htestkey", "me2", slb2).Err()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	val3, err := rdb.HGet(ctx, "htest", "me2").Result()
+	val3, err := rdb.HGet("htestkey", "me").Result()
 	if err == redis.Nil {
-		fmt.Println("htest age does not exist")
+		fmt.Println("htestkey age does not exist")
 	} else if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("htest age", val3)
+		fmt.Println("htestkey: ", val3)
 	}
 
-	v, err := rdb.HGetAll(ctx, "htest").Result()
+	v, err := rdb.HGetAll("htestkey").Result()
 	if err == redis.Nil {
-		fmt.Println("htest age does not exist")
+		fmt.Println("htestkey age does not exist")
 	} else if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("htest all", v)
+		fmt.Println("htestkey all", v)
+	}
+	err = rdb.Del("testkey", "htestkey").Err()
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 }
